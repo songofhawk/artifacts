@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Âw˚ / Tools Collection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            z-index: 10;
+        }
+
+        .main-title {
+            font-size: 56px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 24px;
+            color: #7f8c8d;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            font-size: 18px;
+            color: #95a5a6;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            width: 100%;
+            margin-bottom: 60px;
+            z-index: 10;
+        }
+
+        .tool-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: white;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .tool-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .tool-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tool-description {
+            font-size: 16px;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tool-features {
+            list-style: none;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tool-features li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .tool-features li::before {
+            content: '∏';
+            position: absolute;
+            left: 0;
+            color: #ffd93d;
+        }
+
+        .tool-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+        }
+
+        .coming-soon {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .coming-soon:hover {
+            transform: none;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .decorative-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: rgba(102, 126, 234, 0.6);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+            50% { transform: translateY(-30px) rotate(180deg); opacity: 1; }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+            z-index: 10;
+        }
+
+        .footer-links {
+            margin-top: 20px;
+        }
+
+        .footer-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #764ba2;
+        }
+
+        .category-section {
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 60px;
+            z-index: 10;
+        }
+
+        .category-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .category-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 36px;
+            }
+            
+            .subtitle {
+                font-size: 18px;
+            }
+            
+            .description {
+                font-size: 16px;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .tool-card {
+                padding: 30px;
+            }
+            
+            .tool-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ≈p'C  -->
+        <div class="decorative-elements">
+            <div class="floating-particle" style="top: 10%; left: 5%; animation-delay: 0s;"></div>
+            <div class="floating-particle" style="top: 20%; left: 90%; animation-delay: 1s;"></div>
+            <div class="floating-particle" style="top: 60%; left: 8%; animation-delay: 2s;"></div>
+            <div class="floating-particle" style="top: 80%; left: 85%; animation-delay: 3s;"></div>
+            <div class="floating-particle" style="top: 40%; left: 45%; animation-delay: 4s;"></div>
+            <div class="floating-particle" style="top: 15%; left: 70%; animation-delay: 5s;"></div>
+            <div class="floating-particle" style="top: 75%; left: 25%; animation-delay: 6s;"></div>
+            <div class="floating-particle" style="top: 50%; left: 95%; animation-delay: 7s;"></div>
+        </div>
+
+        <!-- 4Ë:ﬂ -->
+        <div class="header">
+            <h1 class="main-title">Âw˚</h1>
+            <p class="subtitle">Tools Collection</p>
+            <p class="description">
+                ¢"û(Âw∆ŒpfÔ∆0Â8î(©BÇıÿóÄU¬
+            </p>
+        </div>
+
+        <!-- pfÂw{+ -->
+        <div class="category-section">
+            <h2 class="category-title">pfÂw</h2>
+            <div class="tools-grid">
+                <!-- 	“˝pÂw -->
+                <a href="artifacts/triangle/trigonometry_animation.html" class="tool-card">
+                    <span class="tool-badge">=% ÌË</span>
+                    <span class="tool-icon">=–</span>
+                    <h3 class="tool-title">	“˝pÔ∆</h3>
+                    <p class="tool-description">
+                        «§í®;Òe„	“˝pÑÇı+UM˝p˛œåûEî(:
+                    </p>
+                    <ul class="tool-features">
+                        <li>§íUM:</li>
+                        <li>ûˆ˝p˛œÿ6</li>
+                        <li>ÃÌYf/</li>
+                        <li>‚bî(U:</li>
+                    </ul>
+                </a>
+
+                <!-- ÑYÂwMn -->
+                <div class="tool-card coming-soon">
+                    <span class="tool-badge">=ß  —-</span>
+                    <span class="tool-icon">= </span>
+                    <h3 class="tool-title">˝p˛œÿ6h</h3>
+                    <p class="tool-description">
+                        :'Ñ˝p˛œÿ6Âw/Õ˝p{ãå¬pÇ
+                    </p>
+                    <ul class="tool-features">
+                        <li>˝pˆÿ6</li>
+                        <li>¬p®Ç</li>
+                        <li>¸påÔÔ∆</li>
+                        <li>˛œ¸˙ü˝</li>
+                    </ul>
+                </div>
+
+                <div class="tool-card coming-soon">
+                    <span class="tool-badge">=ß  —-</span>
+                    <span class="tool-icon">="</span>
+                    <h3 class="tool-title">ﬂ°fÂw</h3>
+                    <p class="tool-description">
+                        ﬂ°pnêåÔ∆Âw.©„ﬂ°Çıåpnê
+                    </p>
+                    <ul class="tool-features">
+                        <li>œ'ﬂ°°ó</li>
+                        <li>ÇáÔ∆</li>
+                        <li>Gæ¿å:</li>
+                        <li>ﬁRêÂw</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Â8Âw{+ -->
+        <div class="category-section">
+            <h2 class="category-title">Â8Âw</h2>
+            <div class="tools-grid">
+                <div class="tool-card coming-soon">
+                    <span class="tool-badge">=ß  —-</span>
+                    <span class="tool-icon"></span>
+                    <h3 class="tool-title">ˆÙ°Âw</h3>
+                    <p class="tool-description">
+                        ÿHÑˆÙ°å˚°ƒÂw–GÂ\Há
+                    </p>
+                    <ul class="tool-features">
+                        <li>jÂ\’°ˆh</li>
+                        <li>˚°Hß°</li>
+                        <li>ˆÙﬂ°ê</li>
+                        <li>Ë!</li>
+                    </ul>
+                </div>
+
+                <div class="tool-card coming-soon">
+                    <span class="tool-badge">=ß  —-</span>
+                    <span class="tool-icon">=›</span>
+                    <h3 class="tool-title">á,Âw</h3>
+                    <p class="tool-description">
+                        ü˝á,Âw/<lbÖπêIü˝
+                    </p>
+                    <ul class="tool-features">
+                        <li>á,<lb</li>
+                        <li>Wpﬂ°åê</li>
+                        <li>chæK’</li>
+                        <li>lbÂw</li>
+                    </ul>
+                </div>
+
+                <div class="tool-card coming-soon">
+                    <span class="tool-badge">=ß  —-</span>
+                    <span class="tool-icon"><®</span>
+                    <h3 class="tool-title">úrÂw</h3>
+                    <p class="tool-description">
+                        úr	ÈårÂw.©æ°å —
+                    </p>
+                    <ul class="tool-features">
+                        <li>úr	Èh</li>
+                        <li>rh</li>
+                        <li>úr<lb</li>
+                        <li>˘‘¶¿Â</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ïË:ﬂ -->
+        <div class="footer">
+            <p>&copy; 2024 Âw˚. ˙é Apache 2.0 ∏Ô¡ ê.</p>
+            <div class="footer-links">
+                <a href="https://github.com" target="_blank">GitHub</a>
+                <a href="LICENSE">∏Ô¡</a>
+                <a href="README.md">séyÓ</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ub†}®;
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.tool-card:not(.coming-soon)');
+            
+            // ˚†π˚‚πHú
+            cards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    const ripple = document.createElement('div');
+                    ripple.style.position = 'absolute';
+                    ripple.style.width = '20px';
+                    ripple.style.height = '20px';
+                    ripple.style.background = 'rgba(255,255,255,0.5)';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.transform = 'translate(-50%, -50%)';
+                    ripple.style.pointerEvents = 'none';
+                    ripple.style.animation = 'ripple 0.6s ease-out';
+                    
+                    const rect = this.getBoundingClientRect();
+                    ripple.style.left = (e.clientX - rect.left) + 'px';
+                    ripple.style.top = (e.clientY - rect.top) + 'px';
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+
+            // ˚†⁄®>:®;
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // ÀaG®;
+            document.querySelectorAll('.tool-card').forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+                observer.observe(card);
+            });
+        });
+
+        // ˚†‚π®;7
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                0% {
+                    width: 20px;
+                    height: 20px;
+                    opacity: 1;
+                }
+                100% {
+                    width: 200px;
+                    height: 200px;
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

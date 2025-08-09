@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三角函数动态教学动画</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-canvas {
+            width: 1920px;
+            height: 1080px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            transform: scale(0.9);
+        }
+
+        .title {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+
+        .subtitle-area {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1600px;
+            height: 120px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .subtitle-cn {
+            color: #2c3e50;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .subtitle-en {
+            color: #7f8c8d;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .unit-circle-container {
+            position: absolute;
+            left: 100px;
+            top: 150px;
+            width: 500px;
+            height: 500px;
+        }
+
+        .function-graph-container {
+            position: absolute;
+            right: 100px;
+            top: 150px;
+            width: 800px;
+            height: 500px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .wave-animation {
+            position: absolute;
+            bottom: 250px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1200px;
+            height: 200px;
+            opacity: 0;
+        }
+
+        .decorative-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+            50% { transform: translateY(-30px) rotate(180deg); opacity: 1; }
+        }
+
+        .grid-lines {
+            stroke: rgba(255,255,255,0.2);
+            stroke-width: 1;
+        }
+
+        .axis-line {
+            stroke: rgba(255,255,255,0.8);
+            stroke-width: 2;
+        }
+
+        .unit-circle {
+            fill: none;
+            stroke: rgba(255,255,255,0.9);
+            stroke-width: 3;
+        }
+
+        .angle-line {
+            stroke: #ff6b6b;
+            stroke-width: 3;
+            transition: all 0.1s ease;
+        }
+
+        .projection-line {
+            stroke: #4ecdc4;
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+        }
+
+        .point {
+            fill: #ff6b6b;
+            stroke: white;
+            stroke-width: 2;
+        }
+
+        .sine-curve {
+            fill: none;
+            stroke: #ff6b6b;
+            stroke-width: 3;
+        }
+
+        .cosine-curve {
+            fill: none;
+            stroke: #4ecdc4;
+            stroke-width: 3;
+        }
+
+        .phase-indicator {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 24px;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            z-index: 50;
+        }
+
+        .legend {
+            position: absolute;
+            top: 170px;
+            right: 120px;
+            color: white;
+            font-size: 18px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-canvas">
+            <div class="title">三角函数的奥秘 / The Mystery of Trigonometric Functions</div>
+            
+            <div class="phase-indicator" id="phaseIndicator">
+                Phase 1: 单位圆的构建 / Building the Unit Circle
+            </div>
+
+            <div class="decorative-elements">
+                <!-- 装饰性粒子 -->
+                <div class="floating-particle" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
+                <div class="floating-particle" style="top: 30%; left: 85%; animation-delay: 1s;"></div>
+                <div class="floating-particle" style="top: 70%; left: 15%; animation-delay: 2s;"></div>
+                <div class="floating-particle" style="top: 60%; left: 90%; animation-delay: 3s;"></div>
+                <div class="floating-particle" style="top: 40%; left: 50%; animation-delay: 4s;"></div>
+            </div>
+
+            <!-- 单位圆容器 -->
+            <div class="unit-circle-container">
+                <svg width="500" height="500" id="unitCircleSvg">
+                    <!-- 网格线 -->
+                    <defs>
+                        <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                            <path d="M 50 0 L 0 0 0 50" fill="none" class="grid-lines"/>
+                        </pattern>
+                    </defs>
+                    <rect width="500" height="500" fill="url(#grid)" opacity="0.3"/>
+                    
+                    <!-- 坐标轴 -->
+                    <line x1="0" y1="250" x2="500" y2="250" class="axis-line"/>
+                    <line x1="250" y1="0" x2="250" y2="500" class="axis-line"/>
+                    
+                    <!-- 单位圆 -->
+                    <circle cx="250" cy="250" r="200" class="unit-circle"/>
+                    
+                    <!-- 角度线 -->
+                    <line x1="250" y1="250" x2="450" y2="250" class="angle-line" id="angleLine"/>
+                    
+                    <!-- 投影线 -->
+                    <line x1="450" y1="250" x2="450" y2="250" class="projection-line" id="projectionY"/>
+                    <line x1="450" y1="250" x2="250" y2="250" class="projection-line" id="projectionX"/>
+                    
+                    <!-- 点 -->
+                    <circle cx="450" cy="250" r="8" class="point" id="movingPoint"/>
+                    
+                    <!-- 标签 -->
+                    <text x="470" y="260" fill="white" font-size="16" id="pointLabel">P(1,0)</text>
+                    <text x="260" y="245" fill="white" font-size="14">O</text>
+                    <text x="480" y="255" fill="white" font-size="14">1</text>
+                    <text x="245" y="40" fill="white" font-size="14">1</text>
+                    <text x="40" y="255" fill="white" font-size="14">-1</text>
+                    <text x="245" y="480" fill="white" font-size="14">-1</text>
+                    
+                    <!-- 动态标注 -->
+                    <text x="320" y="130" fill="#ff6b6b" font-size="18" font-weight="bold" id="sinLabel">sin θ = 0.00</text>
+                    <text x="320" y="155" fill="#4ecdc4" font-size="18" font-weight="bold" id="cosLabel">cos θ = 1.00</text>
+                    <text x="320" y="180" fill="#ffd93d" font-size="18" font-weight="bold" id="thetaLabel">θ = 0.00°</text>
+                    
+                    <!-- sin标注线和标签 -->
+                    <line x1="430" y1="250" x2="470" y2="250" stroke="#ff6b6b" stroke-width="2" id="sinIndicator"/>
+                    <text x="480" y="255" fill="#ff6b6b" font-size="14" font-weight="bold" id="sinValue">sin</text>
+                    
+                    <!-- cos标注线和标签 -->
+                    <line x1="250" y1="230" x2="250" y2="190" stroke="#4ecdc4" stroke-width="2" id="cosIndicator"/>
+                    <text x="255" y="185" fill="#4ecdc4" font-size="14" font-weight="bold" id="cosValue">cos</text>
+                </svg>
+            </div>
+
+            <!-- 函数图像容器 -->
+            <div class="function-graph-container">
+                <svg width="800" height="500" id="functionGraphSvg">
+                    <!-- 坐标系 -->
+                    <line x1="50" y1="250" x2="750" y2="250" class="axis-line"/>
+                    <line x1="50" y1="50" x2="50" y2="450" class="axis-line"/>
+                    
+                    <!-- 网格 -->
+                    <g opacity="0.3">
+                        <line x1="50" y1="150" x2="750" y2="150" class="grid-lines"/>
+                        <line x1="50" y1="350" x2="750" y2="350" class="grid-lines"/>
+                        <line x1="162.5" y1="50" x2="162.5" y2="450" class="grid-lines"/>
+                        <line x1="275" y1="50" x2="275" y2="450" class="grid-lines"/>
+                        <line x1="387.5" y1="50" x2="387.5" y2="450" class="grid-lines"/>
+                        <line x1="500" y1="50" x2="500" y2="450" class="grid-lines"/>
+                        <line x1="612.5" y1="50" x2="612.5" y2="450" class="grid-lines"/>
+                        <line x1="725" y1="50" x2="725" y2="450" class="grid-lines"/>
+                    </g>
+                    
+                    <!-- 标签 -->
+                    <text x="162.5" y="470" fill="white" font-size="12" text-anchor="middle">π/2</text>
+                    <text x="275" y="470" fill="white" font-size="12" text-anchor="middle">π</text>
+                    <text x="387.5" y="470" fill="white" font-size="12" text-anchor="middle">3π/2</text>
+                    <text x="500" y="470" fill="white" font-size="12" text-anchor="middle">2π</text>
+                    <text x="612.5" y="470" fill="white" font-size="12" text-anchor="middle">5π/2</text>
+                    <text x="725" y="470" fill="white" font-size="12" text-anchor="middle">3π</text>
+                    
+                    <text x="30" y="155" fill="white" font-size="12" text-anchor="middle">1</text>
+                    <text x="30" y="255" fill="white" font-size="12" text-anchor="middle">0</text>
+                    <text x="30" y="355" fill="white" font-size="12" text-anchor="middle">-1</text>
+                    
+                    <!-- 函数标签 -->
+                    <text x="100" y="40" fill="#ff6b6b" font-size="20" font-weight="bold">y = sin θ</text>
+                    <text x="250" y="40" fill="#4ecdc4" font-size="20" font-weight="bold">y = cos θ</text>
+                    
+                    <!-- 当前值显示 -->
+                    <text x="580" y="40" fill="#ffd93d" font-size="16" id="graphTheta">θ = 0.00°</text>
+                    <text x="580" y="65" fill="#ff6b6b" font-size="16" id="graphSin">sin θ = 0.00</text>
+                    <text x="580" y="90" fill="#4ecdc4" font-size="16" id="graphCos">cos θ = 1.00</text>
+                    
+                    <!-- 函数曲线路径 -->
+                    <path d="" class="sine-curve" id="sineCurve"/>
+                    <path d="" class="cosine-curve" id="cosineCurve"/>
+                    
+                    <!-- 当前点指示器 -->
+                    <circle cx="50" cy="250" r="6" fill="#ff6b6b" id="currentSinePoint"/>
+                    <circle cx="50" cy="150" r="6" fill="#4ecdc4" id="currentCosinePoint"/>
+                </svg>
+            </div>
+
+            <!-- 图例 -->
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ff6b6b;"></div>
+                    <span>sin(θ) 正弦函数</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4ecdc4;"></div>
+                    <span>cos(θ) 余弦函数</span>
+                </div>
+            </div>
+
+            <!-- 波形动画容器 -->
+            <div class="wave-animation" id="waveAnimation">
+                <svg width="1200" height="200">
+                    <path d="" stroke="#ffd93d" stroke-width="4" fill="none" id="wavePattern"/>
+                    <text x="600" y="30" fill="white" font-size="24" text-anchor="middle">
+                        波形应用：声波、光波、电磁波 / Wave Applications: Sound, Light, Electromagnetic Waves
+                    </text>
+                </svg>
+            </div>
+
+            <!-- 字幕区域 -->
+            <div class="subtitle-area">
+                <div class="subtitle-cn" id="subtitleCn">欢迎来到三角函数的奇妙世界</div>
+                <div class="subtitle-en" id="subtitleEn">Welcome to the wonderful world of trigonometric functions</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let angle = 0;
+        let animationPhase = 0;
+        let sinePoints = [];
+        let cosinePoints = [];
+        let currentStep = 0;
+        
+        const subtitles = [
+            {
+                cn: "欢迎来到三角函数的奇妙世界",
+                en: "Welcome to the wonderful world of trigonometric functions",
+                duration: 3000
+            },
+            {
+                cn: "让我们从单位圆开始，探索三角函数的本质",
+                en: "Let's start with the unit circle to explore the essence of trigonometric functions",
+                duration: 4000
+            },
+            {
+                cn: "单位圆是半径为1的圆，圆心位于原点",
+                en: "The unit circle is a circle with radius 1 centered at the origin",
+                duration: 3000
+            },
+            {
+                cn: "当点P在圆上旋转时，它的坐标(x,y)就是(cos θ, sin θ)",
+                en: "As point P rotates on the circle, its coordinates (x,y) are (cos θ, sin θ)",
+                duration: 4000
+            },
+            {
+                cn: "正弦值对应点P的纵坐标，表示垂直方向的投影",
+                en: "The sine value corresponds to the y-coordinate of point P, representing vertical projection",
+                duration: 4000
+            },
+            {
+                cn: "余弦值对应点P的横坐标，表示水平方向的投影",
+                en: "The cosine value corresponds to the x-coordinate of point P, representing horizontal projection",
+                duration: 4000
+            },
+            {
+                cn: "随着角度的变化，这些投影值形成了优美的正弦和余弦曲线",
+                en: "As the angle changes, these projection values form beautiful sine and cosine curves",
+                duration: 5000
+            },
+            {
+                cn: "正弦函数呈现周期性波形，周期为2π",
+                en: "The sine function shows a periodic waveform with period 2π",
+                duration: 4000
+            },
+            {
+                cn: "余弦函数同样具有周期性，但相位超前π/2",
+                en: "The cosine function is also periodic, but leads by π/2 in phase",
+                duration: 4000
+            },
+            {
+                cn: "三角函数广泛应用于物理学、工程学和信号处理",
+                en: "Trigonometric functions are widely used in physics, engineering and signal processing",
+                duration: 4000
+            },
+            {
+                cn: "从声波到光波，从交流电到量子力学",
+                en: "From sound waves to light waves, from AC electricity to quantum mechanics",
+                duration: 4000
+            },
+            {
+                cn: "三角函数帮助我们理解周期性现象的本质",
+                en: "Trigonometric functions help us understand the nature of periodic phenomena",
+                duration: 4000
+            },
+            {
+                cn: "感谢观看！希望您对三角函数有了更深的理解",
+                en: "Thank you for watching! Hope you have a deeper understanding of trigonometric functions",
+                duration: 4000
+            }
+        ];
+
+        const phaseTexts = [
+            "Phase 1: 单位圆的构建 / Building the Unit Circle",
+            "Phase 2: 角度与坐标 / Angles and Coordinates", 
+            "Phase 3: 投影分析 / Projection Analysis",
+            "Phase 4: 函数图像生成 / Function Graph Generation",
+            "Phase 5: 波形应用 / Wave Applications",
+            "Phase 6: 总结回顾 / Summary and Review"
+        ];
+
+        function updateSubtitle() {
+            if (currentStep < subtitles.length) {
+                const subtitle = subtitles[currentStep];
+                document.getElementById('subtitleCn').textContent = subtitle.cn;
+                document.getElementById('subtitleEn').textContent = subtitle.en;
+                
+                setTimeout(() => {
+                    currentStep++;
+                    if (currentStep < subtitles.length) {
+                        updateSubtitle();
+                    }
+                }, subtitle.duration);
+            }
+        }
+
+        function updatePhaseIndicator() {
+            const phaseElement = document.getElementById('phaseIndicator');
+            if (animationPhase < phaseTexts.length) {
+                phaseElement.textContent = phaseTexts[animationPhase];
+            }
+        }
+
+        function animateUnitCircle() {
+            const pointElement = document.getElementById('movingPoint');
+            const angleLineElement = document.getElementById('angleLine');
+            const projectionYElement = document.getElementById('projectionY');
+            const projectionXElement = document.getElementById('projectionX');
+            const labelElement = document.getElementById('pointLabel');
+            
+            // 新增的标注元素
+            const sinLabelElement = document.getElementById('sinLabel');
+            const cosLabelElement = document.getElementById('cosLabel');
+            const thetaLabelElement = document.getElementById('thetaLabel');
+            const sinIndicatorElement = document.getElementById('sinIndicator');
+            const cosIndicatorElement = document.getElementById('cosIndicator');
+            const sinValueElement = document.getElementById('sinValue');
+            const cosValueElement = document.getElementById('cosValue');
+            
+            // 计算圆上的点
+            const centerX = 250;
+            const centerY = 250;
+            const radius = 200;
+            
+            const x = centerX + radius * Math.cos(angle);
+            const y = centerY - radius * Math.sin(angle); // 注意Y轴方向
+            
+            const cosValue = Math.cos(angle);
+            const sinValue = Math.sin(angle);
+            const angleDegrees = (angle * 180 / Math.PI) % 360;
+            
+            // 更新元素位置
+            pointElement.setAttribute('cx', x);
+            pointElement.setAttribute('cy', y);
+            
+            angleLineElement.setAttribute('x2', x);
+            angleLineElement.setAttribute('y2', y);
+            
+            projectionYElement.setAttribute('x1', x);
+            projectionYElement.setAttribute('y1', y);
+            projectionYElement.setAttribute('x2', x);
+            projectionYElement.setAttribute('y2', centerY);
+            
+            projectionXElement.setAttribute('x1', x);
+            projectionXElement.setAttribute('y1', y);
+            projectionXElement.setAttribute('x2', centerX);
+            projectionXElement.setAttribute('y2', y);
+            
+            // 更新标签
+            labelElement.textContent = `P(${cosValue.toFixed(2)}, ${sinValue.toFixed(2)})`;
+            labelElement.setAttribute('x', x + 20);
+            labelElement.setAttribute('y', y - 10);
+            
+            // 更新动态标注
+            sinLabelElement.textContent = `sin θ = ${sinValue.toFixed(2)}`;
+            cosLabelElement.textContent = `cos θ = ${cosValue.toFixed(2)}`;
+            thetaLabelElement.textContent = `θ = ${angleDegrees.toFixed(1)}°`;
+            
+            // 更新sin指示器（垂直投影）
+            sinIndicatorElement.setAttribute('x1', x);
+            sinIndicatorElement.setAttribute('y1', y);
+            sinIndicatorElement.setAttribute('x2', x);
+            sinIndicatorElement.setAttribute('y2', centerY);
+            
+            // 更新cos指示器（水平投影）
+            cosIndicatorElement.setAttribute('x1', x);
+            cosIndicatorElement.setAttribute('y1', y);
+            cosIndicatorElement.setAttribute('x2', centerX);
+            cosIndicatorElement.setAttribute('y2', y);
+            
+            // 更新sin标签位置（在投影线中间）
+            const sinMidY = (y + centerY) / 2;
+            sinValueElement.setAttribute('x', x + 15);
+            sinValueElement.setAttribute('y', sinMidY + 5);
+            
+            // 更新cos标签位置（在投影线中间）
+            const cosMidX = (x + centerX) / 2;
+            cosValueElement.setAttribute('x', cosMidX);
+            cosValueElement.setAttribute('y', y - 10);
+        }
+
+        function animateFunctionGraphs() {
+            const sineCurveElement = document.getElementById('sineCurve');
+            const cosineCurveElement = document.getElementById('cosineCurve');
+            const currentSinePointElement = document.getElementById('currentSinePoint');
+            const currentCosinePointElement = document.getElementById('currentCosinePoint');
+            
+            // 图像区域的数值显示更新
+            const graphThetaElement = document.getElementById('graphTheta');
+            const graphSinElement = document.getElementById('graphSin');
+            const graphCosElement = document.getElementById('graphCos');
+            
+            const cosValue = Math.cos(angle);
+            const sinValue = Math.sin(angle);
+            const angleDegrees = (angle * 180 / Math.PI) % 360;
+            
+            // 更新图像区域的数值显示
+            graphThetaElement.textContent = `θ = ${angleDegrees.toFixed(1)}°`;
+            graphSinElement.textContent = `sin θ = ${sinValue.toFixed(2)}`;
+            graphCosElement.textContent = `cos θ = ${cosValue.toFixed(2)}`;
+            
+            // 添加当前点到数组
+            const graphX = 50 + (angle / (3 * Math.PI)) * 675; // 映射到图形区域
+            const sineY = 250 - sinValue * 100; // 正弦值
+            const cosineY = 250 - cosValue * 100; // 余弦值
+            
+            sinePoints.push({x: graphX, y: sineY});
+            cosinePoints.push({x: graphX, y: cosineY});
+            
+            // 限制点的数量，避免内存过多
+            if (sinePoints.length > 1000) {
+                sinePoints.shift();
+                cosinePoints.shift();
+            }
+            
+            // 生成路径字符串
+            let sinePathData = '';
+            let cosinePathData = '';
+            
+            for (let i = 0; i < sinePoints.length; i++) {
+                const point = sinePoints[i];
+                if (i === 0) {
+                    sinePathData += `M ${point.x} ${point.y}`;
+                } else {
+                    sinePathData += ` L ${point.x} ${point.y}`;
+                }
+            }
+            
+            for (let i = 0; i < cosinePoints.length; i++) {
+                const point = cosinePoints[i];
+                if (i === 0) {
+                    cosinePathData += `M ${point.x} ${point.y}`;
+                } else {
+                    cosinePathData += ` L ${point.x} ${point.y}`;
+                }
+            }
+            
+            sineCurveElement.setAttribute('d', sinePathData);
+            cosineCurveElement.setAttribute('d', cosinePathData);
+            
+            // 更新当前点位置
+            if (sinePoints.length > 0) {
+                const lastSinePoint = sinePoints[sinePoints.length - 1];
+                const lastCosinePoint = cosinePoints[cosinePoints.length - 1];
+                
+                currentSinePointElement.setAttribute('cx', lastSinePoint.x);
+                currentSinePointElement.setAttribute('cy', lastSinePoint.y);
+                
+                currentCosinePointElement.setAttribute('cx', lastCosinePoint.x);
+                currentCosinePointElement.setAttribute('cy', lastCosinePoint.y);
+            }
+        }
+
+        function animateWave() {
+            const waveElement = document.getElementById('wavePattern');
+            const waveContainer = document.getElementById('waveAnimation');
+            
+            if (angle > 60) { // 调整波形显示时机（慢4倍）
+                waveContainer.style.opacity = '1';
+                
+                let pathData = 'M 0 100';
+                for (let x = 0; x <= 1200; x += 5) {
+                    const waveY = 100 + 50 * Math.sin((x / 100) + angle);
+                    pathData += ` L ${x} ${waveY}`;
+                }
+                
+                waveElement.setAttribute('d', pathData);
+            }
+        }
+
+        function animate() {
+            // 更新动画阶段（调整对应慢4倍的速度）
+            if (angle < 8) animationPhase = 0;
+            else if (angle < 16) animationPhase = 1;
+            else if (angle < 32) animationPhase = 2;
+            else if (angle < 60) animationPhase = 3;
+            else if (angle < 80) animationPhase = 4;
+            else animationPhase = 5;
+            
+            updatePhaseIndicator();
+            
+            // 执行动画
+            animateUnitCircle();
+            animateFunctionGraphs();
+            animateWave();
+            
+            // 更新角度（减慢4倍）
+            angle += 0.005;
+            
+            // 重置角度以实现循环（调整对应慢4倍的速度）
+            if (angle > 100) {
+                angle = 0;
+                sinePoints = [];
+                cosinePoints = [];
+                animationPhase = 0;
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
+        // 启动动画
+        updateSubtitle();
+        animate();
+    </script>
+</body>
+</html>
