@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Book Translation</title>
+    <style>
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.8;
+            margin: 0;
+            padding: 40px;
+            background-color: #faf8f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #e8e4e0;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            font-weight: 300;
+            font-size: 2em;
+        }
+        
+        .toggle-container {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #f8f6f2;
+            border-radius: 6px;
+            border: 1px solid #e8e4e0;
+        }
+        
+        .toggle-btn {
+            background: #7b9a97;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin: 0 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .toggle-btn:hover {
+            background: #6a8a87;
+            transform: translateY(-1px);
+        }
+        
+        .toggle-btn.active {
+            background: #c4a57b;
+        }
+        
+        .paragraph {
+            margin-bottom: 50px;
+            padding: 30px;
+            border: 1px solid #e8e4e0;
+            border-radius: 6px;
+            background: #faf8f5;
+            position: relative;
+        }
+        
+        .paragraph-number {
+            font-weight: 300;
+            color: #7b9a97;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .original, .annotated, .translation, .difficult-words {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .original {
+            background: #f0f5f4;
+            border-left: 3px solid #7b9a97;
+        }
+        
+        .annotated {
+            background: #f5f2ed;
+            border-left: 3px solid #c4a57b;
+        }
+        
+        .translation {
+            background: #f0f4f1;
+            border-left: 3px solid #8fa891;
+        }
+        
+        .difficult-words {
+            background: #fdf6f0;
+            border-left: 3px solid #d4a57a;
+        }
+        
+        .annotated-word {
+            position: relative;
+            border-bottom: 2px dotted #c4a57b;
+            cursor: pointer;
+            display: inline-block;
+            margin: 0 2px;
+        }
+        
+        .annotated-word:hover {
+            background: #f5f2ed;
+            border-radius: 2px;
+        }
+        
+        .word-annotation {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c3e50;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            margin-bottom: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .annotated-word:hover .word-annotation {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .word-annotation::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #2c3e50;
+        }
+        
+        .word-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #e8e4e0;
+        }
+        
+        .word {
+            font-weight: 500;
+            color: #c4a57b;
+            min-width: 100px;
+        }
+        
+        .word-translation {
+            color: #7b9a97;
+            margin: 0 10px;
+            font-weight: 400;
+        }
+        
+        .word-explanation {
+            color: #666;
+            font-style: italic;
+        }
+        
+        .stats {
+            margin-top: 40px;
+            padding: 25px;
+            background: #f8f6f2;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1em;
+            border: 1px solid #e8e4e0;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-weight: 400;
+            font-size: 1.3em;
+        }
+        
+        h4 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-weight: 400;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>English Book Translation</h1>
+        
+        <div class="toggle-container">
+            <button class="toggle-btn active" onclick="toggleView('all')">全部显示</button>
+            <button class="toggle-btn" onclick="toggleView('original')">仅原文</button>
+            <button class="toggle-btn" onclick="toggleView('translation')">仅翻译</button>
+            <button class="toggle-btn" onclick="toggleView('study')">学习模式</button>
+        </div>
+        
+        
+        <div class="paragraph">
+            <div class="paragraph-number">段落 1</div>
+            
+            <div class="original">
+                <h2>📖 原文</h2>
+                Chapter 1
+            </div>
+            
+            
+            
+            <div class="translation">
+                <h2>🌏 中文翻译</h2>
+                第一章
+            </div>
+            
+            
+        </div>
+        
+        <div class="paragraph">
+            <div class="paragraph-number">段落 2</div>
+            
+            <div class="original">
+                <h2>📖 原文</h2>
+                In my younger and more <span class="annotated-word">vulnerable<span class="word-annotation">脆弱的: 容易受到伤害或攻击的，指在情感或身体上缺乏保护的状态</span></span> years my father gave mesome advice that I&#x27;ve been <span class="annotated-word">turning over<span class="word-annotation">反复思考: 在脑海中不断思考、琢磨某事，仔细考虑</span></span> in my mind ever since.
+            </div>
+            
+            
+            <div class="annotated">
+                <h2>🔍 标注版本</h2>
+                In my younger and more vulnerable years my father gave mesome advice that I've been turning over in my mind ever since.
+            </div>
+            
+            
+            <div class="translation">
+                <h2>🌏 中文翻译</h2>
+                在我年少轻浮、更易受影响的年代，父亲曾给我一些忠告，从那时起，我一直在心中反复琢磨。
+            </div>
+            
+            
+            <div class="difficult-words">
+                <h4>📚 生僻词解释</h4>
+                
+                <div class="word-item">
+                    <span class="word">vulnerable</span>
+                    <span class="word-translation">→ 脆弱的</span>
+                    <span class="word-explanation">(容易受到伤害或攻击的，指在情感或身体上缺乏保护的状态)</span>
+                </div>
+                
+                <div class="word-item">
+                    <span class="word">turning over</span>
+                    <span class="word-translation">→ 反复思考</span>
+                    <span class="word-explanation">(在脑海中不断思考、琢磨某事，仔细考虑)</span>
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        <div class="paragraph">
+            <div class="paragraph-number">段落 3</div>
+            
+            <div class="original">
+                <h2>📖 原文</h2>
+                &quot;Whenever you feel like <span class="annotated-word">criticizing<span class="word-annotation">批评: 指出某人或某事的缺点或错误</span></span> any one,&quot;he told me,&quot;justremember that all the people in this world haven&#x27;t had theadvantages that you&#x27;ve had.&quot;
+            </div>
+            
+            
+            <div class="annotated">
+                <h2>🔍 标注版本</h2>
+                "Whenever you feel like criticizing any one,"he told me,"justremember that all the people in this world haven't had theadvantages that you've had."
+            </div>
+            
+            
+            <div class="translation">
+                <h2>🌏 中文翻译</h2>
+                &#34;每当你想要批评任何人时，&#34;他告诉我，&#34;请记住，这个世界上并非所有人都拥有你所拥有的那些优势。&#34;
+            </div>
+            
+            
+            <div class="difficult-words">
+                <h4>📚 生僻词解释</h4>
+                
+                <div class="word-item">
+                    <span class="word">criticizing</span>
+                    <span class="word-translation">→ 批评</span>
+                    <span class="word-explanation">(指出某人或某事的缺点或错误)</span>
+                </div>
+                
+                <div class="word-item">
+                    <span class="word">advantages</span>
+                    <span class="word-translation">→ 优势</span>
+                    <span class="word-explanation">(有利条件或有助于成功的因素)</span>
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        <div class="paragraph">
+            <div class="paragraph-number">段落 4</div>
+            
+            <div class="original">
+                <h2>📖 原文</h2>
+                He didn&#x27;t say any more but we&#x27;ve always been unusuallycommunicative in a reserved way,and I understood that hemeant a great deal more than that.In consequence I&#x27;m inclinedto reserve all judgments,a habit that has opened up manycurious natures to me and also made me the victim of not afew veteran bores.The abnormal mind is quick to detect andattach itself to this quality when it appears in a normalperson,and so it came about that in college I was unjustlyaccused of being a politician,because I was privy to the secretgriefs of wild,unknown men.Most of the confidences wereunsoughtfrequently I have feigned sleep,preoccupation,or ahostile levity when I realized by some unmistakable sign that anintimate revelation was quivering on the horizonfor theintimate revelations of young men or at least the terms in whichthey express them are usually plagiaristic and marred byobvious suppressions.Reserving judgments is a matter ofinfinite hope.I am still a little afraid of missing something if Iforget that,as my father snobbishly suggested,and I snobbishlyrepeat a sense of the fundamental decencies is parcelled outunequally at birth.
+            </div>
+            
+            
+            
+            <div class="translation">
+                <h2>🌏 中文翻译</h2>
+                他没有再多说什么，但我们之间一向有一种含蓄而异常的默契，我明白他的言外之意远不止于此。因此，我倾向于保留一切判断，这个习惯让我得以窥见许多古怪的本性，也使我成为不少老练无聊之人的受害者。当这种品质出现在正常人身上时，异常的心灵会迅速察觉并依附于它。因此，在大学里，我因为知晓那些放荡不羁的陌生人的秘密悲伤，而不公正地被指责为政客。大多数的倾诉都是我不曾寻求的——当我通过某些明确的迹象意识到亲密的告白即将到来时，我常常假装睡觉、心不在焉，或表现出一种敌意的轻浮——因为年轻人的亲密告白，或者至少是他们表达的方式，通常是抄袭来的，并且因明显的隐瞒而受损。保留判断是一种无限希望的事情。如果我忘记了这一点，我仍然有点害怕会错过什么，正如我父亲势利地暗示的那样，我也势利地重复说，一种基本的体面感在出生时就被不平等地分配了。
+            </div>
+            
+            
+        </div>
+        
+        <div class="paragraph">
+            <div class="paragraph-number">段落 5</div>
+            
+            <div class="original">
+                <h2>📖 原文</h2>
+                And,after boasting this way of my tolerance,I come to theadmission that it has a limit.Conduct may be founded on thehard rock or the wet marshes but after a certain point I don&#x27;tcare what it&#x27;s founded on.When I came back from the East lastautumn I felt that I wanted the world to be in uniform and at asort of moral attention forever;I wanted no more riotousexcursions with privileged glimpses into the human heart.OnlyGatsby,the man who gives his name to this book,was exemptfrom my reactionGatsby who represented everything forwhich I have an unaffected scorn.If personality is an unbroken series of successful gestures,then there was somethinggorgeous about him,some heightened sensitivity to thepromises of life,as if he were related to one of those intricatemachines that register earthquakes ten thousand milesaway.This responsiveness had nothing to do with that flabbyimpressionability which is dignified under the name ofthe&quot;creative temperament&quot;it was an extraordinary gift forhope,a romantic readiness such as I have never found in anyother person and which it is not likely I shall ever find again.NoGatsby turned out all right at the end;it is what preyed onGatsby,what foul dust floated in the wake of his dreams thattemporarily closed out my interest in the abortive sorrows andshort-winded elations of men.
+            </div>
+            
+            
+            
+            <div class="translation">
+                <h2>🌏 中文翻译</h2>
+                而且，在我这样吹嘘了自己的宽容之后，我不得不承认这种宽容是有限度的。行为可能建立在坚硬的岩石上或潮湿的沼泽上，但过了某个程度后，我就不再关心它建立在什么基础上了。去年秋天我从东部回来时，我感到希望世界能永远保持一致，处于一种道德上的警觉状态；我不再想要那些混乱的冒险，不再想要那些对人心特权的窥视。只有盖茨比，那个给这本书命名的人，例外于我的这种反应——盖茨比，他代表了我由衷鄙视的一切。如果个性是一系列连续成功的姿态，那么他身上有种华丽的东西，一种对生活承诺的高度敏感，就好像他与那些能记录万里之外地震的精密机器有着某种关联。这种反应力与那种被冠以&#34;创造性气质&#34;之名的软弱易感性毫无关系——它是一种非凡的希望天赋，一种浪漫的准备状态，是我在任何其他人身上从未发现过，而且以后也不可能再找到的。不——盖茨比最终还不错；是那些侵蚀盖茨比的东西，是他梦想之后漂浮的污浊尘埃，暂时使我对人类那些徒劳的悲伤和短暂的兴奋失去了兴趣。
+            </div>
+            
+            
+        </div>
+        
+        <div class="paragraph">
+            <div class="paragraph-number">段落 6</div>
+            
+            <div class="original">
+                <h2>📖 原文</h2>
+                My family have been prominent,well-to-do people in thismiddle-western city for three generations.The Carraways aresomething of a clan and we have a tradition that we&#x27;redescended from the Dukes of Buccleuch,but the actual founderof my line was my grandfather&#x27;s brother who came here infifty-one,sent a substitute to the Civil War and started thewholesale hardware business that my father carries on today.I never saw this great-uncle but I&#x27;m supposed to look like himwith special reference to the rather hard-boiled painting thathangs in Father&#x27;s office.I graduated from New Haven in 1915,justa quarter of a century after my father,and a little later Iparticipated in that delayed Teutonic migration known as theGreat War.I enjoyed the counter-raid so thoroughly that I cameback restless.Instead of being the warm center of the world themiddle-west now seemed like the ragged edge of the universeso I decided to go east and learn the bondbusiness.Everybody I knew was in the bond business so Isupposed it could support one more single man.All my auntsand uncles talked it over as if they were choosing a prep-school for me and finally said,&quot;Whyye-es&quot;with verygrave,hesitant faces.Father agreed to finance me for a year andafter various delays I came east,permanently,I thought,in thespring of twenty-two.
+            </div>
+            
+            
+            
+            <div class="translation">
+                <h2>🌏 中文翻译</h2>
+                翻译失败
+            </div>
+            
+            
+        </div>
+        
+        
+        <div class="stats">
+            <strong>📊 统计信息:</strong><br>
+            📝 总段落数: 6 | 
+            📖 总单词数: 614 | 
+            🔤 生僻词数: 4 | 
+            🆔 唯一生僻词: 4
+        </div>
+        
+        <script>
+        function toggleView(view) {
+            const buttons = document.querySelectorAll('.toggle-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const paragraphs = document.querySelectorAll('.paragraph');
+            
+            paragraphs.forEach(paragraph => {
+                const original = paragraph.querySelector('.original');
+                const annotated = paragraph.querySelector('.annotated');
+                const translation = paragraph.querySelector('.translation');
+                const difficultWords = paragraph.querySelector('.difficult-words');
+                
+                if (original) original.style.display = 'none';
+                if (annotated) annotated.style.display = 'none';
+                if (translation) translation.style.display = 'none';
+                if (difficultWords) difficultWords.style.display = 'none';
+                
+                switch(view) {
+                    case 'all':
+                        if (original) original.style.display = 'block';
+                        if (annotated) annotated.style.display = 'block';
+                        if (translation) translation.style.display = 'block';
+                        if (difficultWords) difficultWords.style.display = 'block';
+                        break;
+                    case 'original':
+                        if (original) original.style.display = 'block';
+                        if (annotated) annotated.style.display = 'block';
+                        break;
+                    case 'translation':
+                        if (translation) translation.style.display = 'block';
+                        break;
+                    case 'study':
+                        if (original) original.style.display = 'block';
+                        if (translation) translation.style.display = 'block';
+                        if (difficultWords) difficultWords.style.display = 'block';
+                        break;
+                }
+            });
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey) {
+                switch(e.key) {
+                    case '1': toggleView('all'); break;
+                    case '2': toggleView('original'); break;
+                    case '3': toggleView('translation'); break;
+                    case '4': toggleView('study'); break;
+                }
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const difficultWords = document.querySelectorAll('.word-item');
+            difficultWords.forEach(item => {
+                const word = item.querySelector('.word');
+                const translation = item.querySelector('.word-translation');
+                const explanation = item.querySelector('.word-explanation');
+                
+                if (word && translation && explanation) {
+                    word.title = `${translation.textContent} - ${explanation.textContent}`;
+                }
+            });
+        });
+        </script>
+    </div>
+</body>
+</html>
